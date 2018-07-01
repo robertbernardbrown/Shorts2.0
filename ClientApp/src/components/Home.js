@@ -5,10 +5,19 @@ export class Home extends Component {
 
   state = {
     zipcode: "",
+    forecasts: {},
+    searchComplete: false
   }
 
-  searchZip = () => {
+  searchZip = (e) => {
+    e.preventDefault();
     console.log(this.state.zipcode)
+    fetch('https://api.apixu.com/v1/current.json?key=3844afb51b4b4d96840161310172608&q=' + this.state.zipcode)
+      .then(response => response.json())
+      .then(data => {
+        this.setState({ forecasts: data, searchComplete: true });
+        console.log(this.state.forecasts);
+      })
   }
 
   fillForm = (e) => {
@@ -43,15 +52,29 @@ export class Home extends Component {
           </button>
         </form>
 
-        <p>
-          <div id="display">
+        {!this.state.searchComplete ? 
+        <div id="display">
+          <p></p>
+        </div>
+        :
+        <div>
+          <div id="weather-display">
+            <p>You're currently in {this.state.forecasts.location.name}, {this.state.forecasts.location.region}.</p>
+            <p>It's currently {this.state.forecasts.current.temp_f} degrees and {this.state.forecasts.current.condition.text} out.</p>
           </div>
-        </p>
-
-        <p>
-          <div id="display-reco">
+          <div id="reco-display">
+            {this.state.forecasts.current.temp_f > 70 ? 
+            <div>
+              <p>Wear your shorts!</p>
+            </div>
+            :
+            <div>
+              <p>No shorts today :(</p>
+            </div>
+            }
           </div>
-        </p>
+        </div>
+        }
       </div>
     );
   }
